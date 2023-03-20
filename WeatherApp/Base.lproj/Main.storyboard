@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Weather" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="UMb-lW-p2w">
-                                <rect key="frame" x="34.666666666666629" y="158" width="119.00000000000003" height="36"/>
+                                <rect key="frame" x="34.666666666666657" y="158" width="119" height="36"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="30"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
@@ -107,6 +107,21 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iWW-Do-xo0">
+                                <rect key="frame" x="347" y="608" width="41" height="35"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="F" cornerStyle="large">
+                                    <backgroundConfiguration key="background">
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </backgroundConfiguration>
+                                    <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="onTemperatureConvert:" destination="BYZ-38-t0r" eventType="touchUpInside" id="tE5-Tu-NsA"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="labelColor"/>
@@ -121,7 +136,9 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="8z9-mc-jZO" secondAttribute="trailing" constant="48" id="AFY-a8-S85"/>
                             <constraint firstItem="UMb-lW-p2w" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" constant="-121" id="AlO-L9-cck"/>
                             <constraint firstItem="pgk-Y9-LSf" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="121" id="BFV-qu-IKu"/>
+                            <constraint firstItem="iWW-Do-xo0" firstAttribute="top" secondItem="SIH-rW-sun" secondAttribute="bottom" constant="108" id="Cdy-du-02D"/>
                             <constraint firstItem="8z9-mc-jZO" firstAttribute="top" secondItem="pgk-Y9-LSf" secondAttribute="bottom" constant="-1" id="CqN-SA-8dI"/>
+                            <constraint firstItem="iWW-Do-xo0" firstAttribute="leading" secondItem="pgk-Y9-LSf" secondAttribute="trailing" constant="38" id="E1D-GM-dWm"/>
                             <constraint firstItem="SIH-rW-sun" firstAttribute="top" secondItem="y16-uY-QxV" secondAttribute="bottom" constant="21" id="IFh-2w-8DF"/>
                             <constraint firstItem="5hy-ov-0KY" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="19" id="K8A-pC-Kpt"/>
                             <constraint firstItem="SIH-rW-sun" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="Kcm-q2-1PK"/>
@@ -130,6 +147,7 @@
                             <constraint firstItem="5hy-ov-0KY" firstAttribute="top" secondItem="UMb-lW-p2w" secondAttribute="bottom" constant="8" id="VFZ-h5-wQn"/>
                             <constraint firstItem="Mn2-hv-4vf" firstAttribute="top" secondItem="pgk-Y9-LSf" secondAttribute="bottom" constant="38" id="Yyy-HI-Orp"/>
                             <constraint firstItem="X2K-Pj-hne" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="149" id="aCd-Xc-iHa"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="iWW-Do-xo0" secondAttribute="trailing" constant="42" id="gPF-iG-s3r"/>
                             <constraint firstItem="y16-uY-QxV" firstAttribute="leading" secondItem="5hy-ov-0KY" secondAttribute="trailing" constant="8" id="gcN-OR-Foi"/>
                             <constraint firstItem="bnz-OI-IPx" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="323" id="i8B-J2-WUl"/>
                             <constraint firstItem="Zey-sq-h41" firstAttribute="top" secondItem="SIH-rW-sun" secondAttribute="bottom" constant="34" id="izQ-hf-NdS"/>
@@ -152,6 +170,7 @@
                         <outlet property="map" destination="SIH-rW-sun" id="XOB-pO-fbv"/>
                         <outlet property="searchButton" destination="5hy-ov-0KY" id="UP0-jN-fXF"/>
                         <outlet property="searchTF" destination="y16-uY-QxV" id="1eJ-lj-DZ5"/>
+                        <outlet property="temperatureConvert_ButtonLabel" destination="iWW-Do-xo0" id="2Iw-gj-k9n"/>
                         <outlet property="temperatureLabel" destination="pgk-Y9-LSf" id="DCO-Lf-eC5"/>
                         <outlet property="weatherDescription" destination="8z9-mc-jZO" id="ROL-Qh-wxF"/>
                         <outlet property="weatherIcon" destination="Mn2-hv-4vf" id="DWm-0d-qjw"/>

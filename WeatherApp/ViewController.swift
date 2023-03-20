@@ -49,6 +49,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     @IBOutlet weak var lowTemp: UILabel!
     @IBOutlet weak var currentLocation: UIButton!
     
+    @IBOutlet weak var temperatureConvert_ButtonLabel: UIButton!
+//    var temperatureConvert_ButtonLabel = "°F"
     
     var weatherIconCondition: Int = 0
     var weatherCondition: String?
@@ -61,6 +63,11 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     var location: String?
     var lat: Double?
     var lon: Double?
+    
+    var isChecked = true
+    
+    var temp_f_global: Float?
+    var temp_c_global: Float?
     
     override func viewDidLoad() {
         
@@ -76,7 +83,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         
         weatherIcon.preferredSymbolConfiguration = config
         weatherIcon.image = UIImage(systemName: "cloud.fill")
-        
         
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
@@ -98,21 +104,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         loadWeather(search: locationSearch)
     }
     
-    
-    
-    
-    // location manager function
-    //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
-    //    {
-    //
-    //        let location = locations.last! as CLLocation
-    //
-    //        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
-    //        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
-    //
-    //        self.map.setRegion(region, animated: true)
-    //    }
-    
     func currentLoc (lat: Double, lon: Double) {
         let londonLocation = CLLocation(latitude: lat, longitude: lon)
         
@@ -122,14 +113,10 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             // Place details
             var placeMark: CLPlacemark!
             placeMark = placemarks?[0]
-            //                        print("Placemark: \(placeMark?.country)")
-            //                        print("Placemark: \(placeMark?.locality)")
-            //                        print("Placemark: \(placeMark?.subLocality)")
             
             guard placeMark.country != nil else {
                 if let city = placeMark.locality {
                     self.loadWeather(search: city);
-                    //                    loadWeather(search: city))
                 }
                 return
             }
@@ -147,15 +134,38 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         print("My loc = \(locValue.latitude) \(locValue.longitude)")
     }
     
+    @IBAction func onTemperatureConvert(_ sender: UIButton) {
+        lat = (locationManager.location?.coordinate.latitude)
+        lon = (locationManager.location?.coordinate.longitude)
+        
+        isChecked = !isChecked
+        // button
+
+        if isChecked == true{
+            print(isChecked)
+            temperatureConvert_ButtonLabel.setTitle("F", for: .normal)
+        }
+        else {
+            print(isChecked)
+            temperatureConvert_ButtonLabel.setTitle("C", for: .normal)
+        }
+        
+        loadWeather(search: "\(lat!) \(lon!)")
+        
+        
+    }
+    
     // setting current location button in bottom right
     @IBAction func onCurrentLocation(_ sender: UIButton) {
         lat = (locationManager.location?.coordinate.latitude)
         lon = (locationManager.location?.coordinate.longitude)
-        
+
         print("Latitude \(lat!)")
         print("Longitude \(lon!)")
-        
+
         loadWeather(search: "\(lat!) \(lon!)")
+        
+//        isChecked = !isChecked
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -200,10 +210,30 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
             if let weatherResponse = self.parseJSON(data: data){
                 
                 // since the UI cannot be updated from the background thread but only from main, the dispatch queue comes to an action
-                DispatchQueue.main.async {
+                DispatchQueue.main.async { [self] in
+                    self.temp_f_global = weatherResponse.current.temp_f
+                    self.temp_c_global = weatherResponse.current.temp_c
+                    
                     self.locationLabel.text = weatherResponse.location.name
-                    self.temperatureLabel.text = "\(weatherResponse.current.temp_c)°C"
-                    //                    print(weatherResponse.current.temp_f)
+                    
+                    if isChecked {
+//                        temperatureConvert_ButtonLabel = "°F"
+                        print(isChecked)
+//                        self.temperatureLabel.text = "\(self.temp_c_global!)°C"
+                        self.temperatureLabel.text = "\(self.temp_f_global!)°F"
+                        temperatureConvert_ButtonLabel.setTitle("C", for: .normal)
+                        
+                    }
+                    else {
+//                        temperatureConvert_ButtonLabel = "°C"
+                        print(isChecked)
+                        self.temperatureLabel.text = "\(self.temp_c_global!)°C"
+                        temperatureConvert_ButtonLabel.setTitle("F", for: .normal)
+                    }
+                    
+                    print(weatherResponse.current.temp_f)
+                    print("Float Fah Temp", self.temp_f_global!)
+                    
                     self.weatherDescription.text = "\(weatherResponse.current.condition.text)"
                     self.weatherCondition = String("\(weatherResponse.current.condition.code)")
                     let day_night = weatherResponse.current.is_day == 0 ? "Night" : "Day"
@@ -218,8 +248,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                     let coordinateRegion = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: radiusInMetres, longitudinalMeters: radiusInMetres)
                     
                     self.map.setRegion(coordinateRegion, animated: true)
-                    
-                    //                    print("Weather ICON CONDITION", self.weatherCondition ?? "")
                     
                     switch weatherConditionCode {
                         
@@ -268,6 +296,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 }
             }
         }
+        // Dispatch main async end
         
         // start datatask
         dataTask.resume()
