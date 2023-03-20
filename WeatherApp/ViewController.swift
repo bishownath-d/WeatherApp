@@ -9,50 +9,80 @@ import UIKit
 import MapKit
 import CoreLocation
 
+struct WeatherResponse: Decodable {
+    let location: Location
+    let current: Weather
+}
+
+struct Location: Decodable{
+    let name: String
+    let lat: Double
+    let lon: Double
+}
+
+struct Weather: Decodable {
+    let temp_c: Float
+    let temp_f: Float
+    let is_day: Int
+    let condition: WeatherCondition
+}
+
+struct WeatherCondition: Decodable {
+    let text: String
+    let code: Int
+}
+
+
 class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDelegate{
     
     @IBOutlet weak var searchTF: UITextField!
     @IBOutlet weak var locationLabel: UILabel!
     @IBOutlet weak var temperatureLabel: UILabel!
     @IBOutlet weak var searchButton: UIButton!
-    
     @IBOutlet weak var weatherDescription: UILabel!
-    
     @IBOutlet weak var map: MKMapView!
     @IBOutlet weak var weatherIcon: UIImageView!
-    
-    
     @IBOutlet weak var isDay: UILabel!
     
-    @IBOutlet weak var fahrenheitButton: UIButton!
+    
+    @IBOutlet weak var highTemp: UILabel!
+    @IBOutlet weak var lowTemp: UILabel!
+    @IBOutlet weak var currentLocation: UIButton!
+    
     
     var weatherIconCondition: Int = 0
     var weatherCondition: String?
-    
     var isFahrenheit = false
     
     // using CL Location Manager to get the current location
     var locationManager = CLLocationManager()
     
+    
     var location: String?
     var lat: Double?
     var lon: Double?
     
-    
-    
     override func viewDidLoad() {
-        super.viewDidLoad()
-        //        Do any additional setup after loading the view.
-        temperatureLabel.text = "-5°C"
-        weatherDescription.text = "Partly Cloudy"
         
+        super.viewDidLoad()
         searchTF.delegate = self
         
+        locationManager.requestAlwaysAuthorization()
+        //        locationManager.requestWhenInUseAuthorization()
+        
+        locationLabel.text = "Mumbai"
         // config for changing the color of the image icon
         let config = UIImage.SymbolConfiguration(paletteColors: [.gray, .white, .yellow])
         
         weatherIcon.preferredSymbolConfiguration = config
         weatherIcon.image = UIImage(systemName: "cloud.fill")
+        
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+        }
     }
     
     //resign keyboard from screen
@@ -60,82 +90,89 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         searchTF.resignFirstResponder()
     }
     
-    
     // on click search button
     @IBAction func onClickSearchButton(_ sender: UIButton) {
         //
+        
         let locationSearch = searchTF.text
         loadWeather(search: locationSearch)
     }
     
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
-        print("locations = \(locValue.latitude) \(locValue.longitude)")
+    
+    
+    
+    // location manager function
+    //    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
+    //    {
+    //
+    //        let location = locations.last! as CLLocation
+    //
+    //        let center = CLLocationCoordinate2D(latitude: location.coordinate.latitude, longitude: location.coordinate.longitude)
+    //        let region = MKCoordinateRegion(center: center, span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01))
+    //
+    //        self.map.setRegion(region, animated: true)
+    //    }
+    
+    func currentLoc (lat: Double, lon: Double) {
+        let londonLocation = CLLocation(latitude: lat, longitude: lon)
         
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            locationManager.requestAlwaysAuthorization()
-            locationManager.startUpdatingLocation()
-        }
+        let geoCoder = CLGeocoder();
+        geoCoder.reverseGeocodeLocation(londonLocation, completionHandler: { (placemarks, error) -> Void in
+            
+            // Place details
+            var placeMark: CLPlacemark!
+            placeMark = placemarks?[0]
+            //                        print("Placemark: \(placeMark?.country)")
+            //                        print("Placemark: \(placeMark?.locality)")
+            //                        print("Placemark: \(placeMark?.subLocality)")
+            
+            guard placeMark.country != nil else {
+                if let city = placeMark.locality {
+                    self.loadWeather(search: city);
+                    //                    loadWeather(search: city))
+                }
+                return
+            }
+        });
+        
+        let radiusInMetres: CLLocationDistance = 1000
+        let coordinateRegion = MKCoordinateRegion(center: londonLocation.coordinate, latitudinalMeters: radiusInMetres, longitudinalMeters: radiusInMetres)
+        
+        map.setRegion(coordinateRegion, animated: true)
+        
     }
     
-    
-    // TODO
-    @IBAction func onChangeToFahrenheit(_ sender: UIButton) {
-//
-//        let location: Location = WeatherResponse(from: <#Decoder#>)
-//        isFahrenheit = !isFahrenheit
-//        if self.isFahrenheit {
-//            self.temperatureLabel.text = "\(location.current.temp_f)°F"
-//            self.fahrenheitButton.titleLabel?.text = "°C"
-//        }
-//        else {
-//            self.temperatureLabel.text = "\(location.current.temp_c)°C"
-//            self.fahrenheitButton.titleLabel?.text = "°F"
-//        }
-//
-//
-        print("Change to Fahrenheit")
-
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else { return }
+        print("My loc = \(locValue.latitude) \(locValue.longitude)")
     }
     
     // setting current location button in bottom right
     @IBAction func onCurrentLocation(_ sender: UIButton) {
+        lat = (locationManager.location?.coordinate.latitude)
+        lon = (locationManager.location?.coordinate.longitude)
         
-        // setting up map
-        let location = CLLocation(latitude: 42.98339, longitude: -81.23304)
+        print("Latitude \(lat!)")
+        print("Longitude \(lon!)")
         
-        let radiusInMetres: CLLocationDistance = 1000
-        
-        let coordinateRegion = MKCoordinateRegion(center: location.coordinate, latitudinalMeters: radiusInMetres, longitudinalMeters: radiusInMetres)
-        
-        map.setRegion(coordinateRegion, animated: true)
-        
-        print("Current Location bottom button")
-        
-        locationManager(locationManager, didUpdateLocations: [location])
-        
+        loadWeather(search: "\(lat!) \(lon!)")
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        
         textField.resignFirstResponder()
         
-        self.locationLabel.text = textField.text
+        self.locationLabel.text = textField.text!
         
         loadWeather(search: textField.text)
         textField.text = ""
         return true
     }
     
-    
     private func loadWeather(search: String?) {
         guard let search = search else{
             return
         }
-        print("Loading the weather")
-        
+        //        print("Loading the weather")
         
         guard let url = getURL(location: search) else {
             print("NO URL FOUND")
@@ -147,7 +184,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         // data task create
         let dataTask = session.dataTask(with: url) { data, response, error in
             // network call
-            print("Network called")
+            // print("Network called")
             
             guard error == nil else {
                 print("Error Occured")
@@ -166,13 +203,12 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 DispatchQueue.main.async {
                     self.locationLabel.text = weatherResponse.location.name
                     self.temperatureLabel.text = "\(weatherResponse.current.temp_c)°C"
+                    //                    print(weatherResponse.current.temp_f)
                     self.weatherDescription.text = "\(weatherResponse.current.condition.text)"
                     self.weatherCondition = String("\(weatherResponse.current.condition.code)")
                     let day_night = weatherResponse.current.is_day == 0 ? "Night" : "Day"
                     self.isDay.text = day_night
                     let weatherConditionCode = Int(self.weatherCondition ?? "")
-                    
-                   
                     
                     // setting up map
                     let location = CLLocation(latitude: weatherResponse.location.lat, longitude: weatherResponse.location.lon)
@@ -183,8 +219,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                     
                     self.map.setRegion(coordinateRegion, animated: true)
                     
-                    
-                    print("Weather ICON CONDITION", self.weatherCondition ?? "")
+                    //                    print("Weather ICON CONDITION", self.weatherCondition ?? "")
                     
                     switch weatherConditionCode {
                         
@@ -215,6 +250,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                     case 1066:
                         self.weatherIcon.image = UIImage(systemName: "cloud.snow")
                         
+                        // fan blades
                     default:
                         self.weatherIcon.image = UIImage(systemName: "fanblades")
                     }
@@ -248,6 +284,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         }
         return weather
     }
+    
     private func getURL(location: String) -> URL? {
         // get URL
         let baseURL = "https://api.weatherapi.com/v1/"
@@ -258,32 +295,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         else {
             return nil
         }
-        print(endpoint)
+        //        print(endpoint)
         return URL(string: endpoint)
     }
-    
-}
-
-struct WeatherResponse: Decodable {
-    let location: Location
-    let current: Weather
-}
-
-struct Location: Decodable{
-    let name: String
-    let lat: Double
-    let lon: Double
-}
-
-struct Weather: Decodable {
-    let temp_c: Float
-        let temp_f: Float
-    let is_day: Int
-    let condition: WeatherCondition
-}
-
-struct WeatherCondition: Decodable {
-    let text: String
-    let code: Int
 }
 
