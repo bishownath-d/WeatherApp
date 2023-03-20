@@ -220,15 +220,16 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
 //                        temperatureConvert_ButtonLabel = "°F"
                         print(isChecked)
 //                        self.temperatureLabel.text = "\(self.temp_c_global!)°C"
-                        self.temperatureLabel.text = "\(self.temp_f_global!)°F"
-                        temperatureConvert_ButtonLabel.setTitle("C", for: .normal)
+                        self.temperatureLabel.text = "\(self.temp_c_global!)°C"
+                        temperatureConvert_ButtonLabel.setTitle("F", for: .normal)
                         
                     }
                     else {
 //                        temperatureConvert_ButtonLabel = "°C"
                         print(isChecked)
-                        self.temperatureLabel.text = "\(self.temp_c_global!)°C"
-                        temperatureConvert_ButtonLabel.setTitle("F", for: .normal)
+                        self.temperatureLabel.text = "\(self.temp_f_global!)°F"
+                        temperatureConvert_ButtonLabel.setTitle("C", for: .normal)
+                        
                     }
                     
                     print(weatherResponse.current.temp_f)
