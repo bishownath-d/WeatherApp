@@ -69,6 +69,8 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
     var temp_f_global: Float?
     var temp_c_global: Float?
     
+    var loadTemp: WeatherResponse?
+    
     override func viewDidLoad() {
         
         super.viewDidLoad()
@@ -126,7 +128,6 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         let coordinateRegion = MKCoordinateRegion(center: londonLocation.coordinate, latitudinalMeters: radiusInMetres, longitudinalMeters: radiusInMetres)
         
         map.setRegion(coordinateRegion, animated: true)
-        
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -144,15 +145,13 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
         if isChecked == true{
             print(isChecked)
             temperatureConvert_ButtonLabel.setTitle("F", for: .normal)
+            temperatureLabel.text = "\(loadTemp!.current.temp_c)°C"
         }
         else {
             print(isChecked)
             temperatureConvert_ButtonLabel.setTitle("C", for: .normal)
+            temperatureLabel.text = "\(loadTemp!.current.temp_f)°F"
         }
-        
-        loadWeather(search: "\(lat!) \(lon!)")
-        
-        
     }
     
     // setting current location button in bottom right
@@ -211,6 +210,7 @@ class ViewController: UIViewController, UITextFieldDelegate, CLLocationManagerDe
                 
                 // since the UI cannot be updated from the background thread but only from main, the dispatch queue comes to an action
                 DispatchQueue.main.async { [self] in
+                    loadTemp = weatherResponse
                     self.temp_f_global = weatherResponse.current.temp_f
                     self.temp_c_global = weatherResponse.current.temp_c
                     
